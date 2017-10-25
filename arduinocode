@@ -1,0 +1,141 @@
+# Water-Level-indicator
+This is all about indicating water level and controlling device from anywhere through the internet. This is a webpage controlled and automatic device that can be controlled from website. Its application can be used in dairy industry, chemical industry.
+
+const int analogInPin1 = A5;//upper level of lower tank
+const int analogInPin2 = A4;//lower level of lower tank
+const int analogInPin3 = A3; //upper level of upper tank
+const int analogInPin4 = A2;//lower level of upper tank
+const int analogInPin5 = A1;
+//const int analogInPin6 = A0;//lower level of upper tank
+
+
+int motorflag = 0;
+//int Level_in_Lower = 0;
+int Level_in_Upper = 0;
+int Check_Water_in_Lower = 0;
+int Check_Water_in_Upper = 0;
+int xx;
+int Water_avl_in_Line = 0;
+
+
+void setup() {
+
+  Serial.begin(9600);
+  pinMode(3, HIGH);
+}
+
+
+int DRC()
+{
+  if (analogRead(analogInPin5) >= 900)
+  {
+    Water_avl_in_Line = 0;
+  }
+  else
+  {
+
+    Water_avl_in_Line = 1;
+  }
+
+   Serial.print("Water Avl: ");
+   Serial.println(Water_avl_in_Line);
+   return Water_avl_in_Line;
+}
+
+int Check_water_Upper()
+{
+
+  if (Level_in_Upper == 0)
+  {
+    xx = 1; //need to fill the tank
+  }
+
+  else if (Level_in_Upper == 100)
+  {
+    xx = 0;
+  }
+  Serial.print("xx: ");
+  Serial.println(xx);
+  return xx;
+}
+
+int Motor()
+{
+  if (xx == 1)
+  {    
+     if (Water_avl_in_Line==1)
+      {
+        if (motorflag == 0)
+        { digitalWrite(3, HIGH);
+          motorflag = 1;
+        }
+      }
+    
+    if (Water_avl_in_Line==0)
+    { 
+      if (motorflag == 1)
+      { digitalWrite(3, LOW);
+        motorflag = 0;
+      }
+    }
+  }
+  else
+  {
+    digitalWrite(3, LOW);
+    motorflag = 0;
+  }
+  Serial.print("motor: ");
+  Serial.println(motorflag);
+}
+
+
+int level_upper()
+{
+
+  if ((analogRead(analogInPin3) <= 200) && (analogRead(analogInPin4) <= 200)  )
+  {
+    Level_in_Upper = 100;
+  }
+  if ((analogRead(analogInPin3) >= 900) && (analogRead(analogInPin4) <= 200)  )
+  {
+    Level_in_Upper = 50;
+  }
+  if ((analogRead(analogInPin3) >= 900) && (analogRead(analogInPin4) >= 900)  )
+  {
+    Level_in_Upper = 0;
+  }
+  Serial.print("Upper Level: ");
+  Serial.println(Level_in_Upper);
+  return Level_in_Upper;
+}
+
+//int level_lower()
+//{
+//  if ((analogRead(analogInPin2) <= 200) && (analogRead(analogInPin1) <= 200)  )
+//  {
+//    Level_in_Lower = 100;
+//  }
+//  if ((analogRead(analogInPin2) >= 900) && (analogRead(analogInPin1) <= 200)  )
+//  {
+//    Level_in_Lower = 50;
+//  }
+//  if ((analogRead(analogInPin2) >= 900) && (analogRead(analogInPin1) >= 900)  )
+//  {
+//    Level_in_Lower = 0;
+//  }
+//  Serial.print("Lower Level: ");
+//  Serial.println(Level_in_Lower);
+//  return Level_in_Lower;
+//}
+
+
+void loop()
+{
+  DRC();
+  level_upper();
+  //level_lower();
+  Check_water_Upper();
+  Motor();
+}
+
+
